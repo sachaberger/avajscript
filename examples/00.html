@@ -1,0 +1,33 @@
+<html>
+	<head>
+		<script type="text/javascript" src="../avajscript.js"></script>
+		<script type="text/javascript">
+			with(sachaberger.avaJScript) {
+				var P = FUN( "ARG", "GAGA", DO(
+					GET("ARG")
+				));
+				new SCRIPT(
+					LET("a",VAL(1)),
+					LET("b",VAL(0)),
+					LET("c",GET("a")),
+					RUN(function(w){
+						w.set("d","Spooky");
+					}),
+					LET("e",P(GET("d"),VAL(null))),
+					LET("f",MAP(VAL([0,0,0]),VAL(23))),
+					LET("g",VAL(true)),
+					IFELSE(EQ(GET("d"),GET("e")),
+						LET("h",VAL("hihi")),
+						LET("h",VAL("hoho"))
+					)/*,
+					LET("Z","END")*/
+				).then(function(w){
+					console.log("DONE",w);
+				}).execute();
+			}
+		</script>
+	</head>
+	<body>
+		<h1>avajscript tests</h1>
+	</body>
+</html>
