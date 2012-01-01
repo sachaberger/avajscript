@@ -1,4 +1,4 @@
-#avaJScript---think sync, run asyc
+#avaJScript―think sync, run asyc
 
 This project claims to fight deep nesting of callbacks in ambitious javascript projects involving excessive asynchronous methods.
 
