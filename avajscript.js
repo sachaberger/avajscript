@@ -74,9 +74,10 @@ Copyright 2011 Sacha Berger
 		var splt = args.length-1;
 		var closure = args[splt];
 		var formalParams = args.slice(0,splt);
-		// //TRACE("ARGS",formalParams,closure);
+		//TRACE("ARGS",formalParams,closure);
 		return function(/*varargs*/) {
 			var args = Array.apply(null,arguments);
+			//TRACE("CALLING FUN",args);
 			var toDos = formalParams.map(function(p,i,fps){
 				return LET(p,args[i])
 			});
@@ -86,9 +87,19 @@ Copyright 2011 Sacha Berger
 
 	function CALL(/*fun,varargs*/){
 		var args = Array.apply(null,arguments);
-		var fun = args[0];
+		var funName = args[0];
 		var params = args.slice(1);
-		throw "NOT IMPLEMENTED";
+		return function(scope,continuation) {
+			if((typeof funName == "string"))
+				scope.get(funName).apply(null,params)(scope,continuation);
+			else {
+				funName(scope,[
+					function(_,fnCont) {
+						scope.get(scope.getResult()).apply(null,params)(scope,continuation)
+					}
+				]);
+			}				
+		}
 	}
 
 	function MAP(array,closure) {
@@ -153,20 +164,47 @@ Copyright 2011 Sacha Berger
 	}
 
 	function GET(variable) {
-		return RUN(function(scope) {
-			return scope.get(variable);
-		})
+		if(typeof variable == "string")
+			return RUN(function(scope) {
+				return scope.get(variable);
+			})
+		else
+			return _BLK([
+				variable,
+				RUN(function(scope){
+					return scope.get(scope.getResult());
+				})
+			]);
 	}
 
 	function LET(lhs,rhs) {
-		return _BLK([
-			rhs,
+		return IFELSE(
 			RUN(function(scope){
-				var value = scope.getResult();
-				//TRACE("LET",lhs,"TO",value);
-				scope.set(lhs,value);					
-			})
-		])
+				return typeof lhs == "string"				
+			}),
+			_BLK([
+				rhs,
+				RUN(function(scope){
+					var value = scope.getResult();
+					//TRACE("LET",lhs,"TO",value);
+					scope.set(lhs,value);
+				})
+			]),
+			_BLK([
+				rhs,
+				SYNC(function(scope,chain){
+					var value = scope.getResult();
+					lhs(new Scope(scope),[
+						function(lhsScope,continuation) {
+							//TRACE("LET",lhs,"TO",value);
+							scope.set(lhsScope.getResult(),value);
+							chain();
+						}
+					]);
+				})
+			])
+		);
+		
 	}
 
 	function RUN(procedure) {

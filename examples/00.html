@@ -3,9 +3,16 @@
 		<script type="text/javascript" src="../avajscript.js"></script>
 		<script type="text/javascript">
 			with(sachaberger.avaJScript) {
+				console.log("GO!");
+
 				var P = FUN( "ARG", "GAGA", DO(
 					GET("ARG")
 				));
+
+				var PLUS = FUN( "lhs", "rhs", RUN(function(scope){
+					return scope.get("lhs")+scope.get("rhs")
+				}));
+
 				new SCRIPT(
 					LET("a",VAL(1)),
 					LET("b",VAL(0)),
@@ -20,11 +27,39 @@
 						LET("h",VAL("hihi")),
 						LET("h",VAL("hoho"))
 					),
-					LET("i",FUN( "I", DO( 
-						LET("j",VAL(123)),
-						VAL("hello world")
+					LET("i",VAL(FUN( "a", DO( 
+						GET("a")
+					)))),
+					GET("i"),
+					CALL("i",GET("b")),
+					LET("A",VAL("f")),
+					GET(GET("A")),
+					LET("J",VAL("j")),
+					LET(GET("J"),CALL("i",VAL("jiji"))),
+					LET("I",VAL("i")),
+					LET("k",CALL(GET("I"),VAL("kooboo"))),
+					LET("recTimes",VAL(FUN( "i", "j",
+						IFELSE( 
+							EQ(GET("i"),VAL(0)),
+							VAL(0),
+							PLUS(
+								GET("j"),
+								CALL("recTimes",
+									PLUS(
+										GET("i"),
+										VAL(-1)
+									),
+									GET("j")
+								)
+							)
+						)
 					))),
-					CALL("i",GET("i"))
+					LET("l",
+						CALL("recTimes",
+							VAL(3),
+							VAL(4)
+						)
+					)
 				).then(function(w){
 					console.log("DONE",w);
 				}).execute();
