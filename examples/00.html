@@ -19,8 +19,12 @@
 					IFELSE(EQ(GET("d"),GET("e")),
 						LET("h",VAL("hihi")),
 						LET("h",VAL("hoho"))
-					)/*,
-					LET("Z","END")*/
+					),
+					LET("i",FUN( "I", DO( 
+						LET("j",VAL(123)),
+						VAL("hello world")
+					))),
+					CALL("i",GET("i"))
 				).then(function(w){
 					console.log("DONE",w);
 				}).execute();

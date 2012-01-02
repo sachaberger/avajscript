@@ -76,12 +76,19 @@ Copyright 2011 Sacha Berger
 		var formalParams = args.slice(0,splt);
 		// //TRACE("ARGS",formalParams,closure);
 		return function(/*varargs*/) {
-				var args = Array.apply(null,arguments);
-				var toDos = formalParams.map(function(p,i,fps){
-					return LET(p,args[i])
-				});
+			var args = Array.apply(null,arguments);
+			var toDos = formalParams.map(function(p,i,fps){
+				return LET(p,args[i])
+			});
 			return DO.apply(null,toDos.concat(closure));
 		}
+	}
+
+	function CALL(/*fun,varargs*/){
+		var args = Array.apply(null,arguments);
+		var fun = args[0];
+		var params = args.slice(1);
+		throw "NOT IMPLEMENTED";
 	}
 
 	function MAP(array,closure) {
@@ -212,6 +219,7 @@ Copyright 2011 Sacha Berger
 			SYNC: SYNC,
 			SCRIPT: SCRIPT,
 			IFELSE: IFELSE,
+			CALL: CALL,
 			EQ: FUN("lhs","rhs",RUN(function(scope){
 				var lhs = scope.get("lhs"),
 				    rhs = scope.get("rhs");
