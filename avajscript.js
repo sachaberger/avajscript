@@ -257,6 +257,13 @@ Copyright 2011 Sacha Berger
 			SYNC: SYNC,
 			SCRIPT: SCRIPT,
 			IFELSE: IFELSE,
+			IF: FUN("condition", "then", 
+				IFELSE(
+					GET("condition"), 
+					GET("then"), 
+					DO()
+				)
+			),
 			CALL: CALL,
 			EQ: FUN("lhs","rhs",RUN(function(scope){
 				var lhs = scope.get("lhs"),

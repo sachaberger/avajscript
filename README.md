@@ -60,7 +60,7 @@ The asynchronous flavour of recLoop would look like this:
 
 So, after this little excursion in anonymous callback kung-fu, how will avaJScript helt you? The goal is, to more or less write code the way you would write it synchronously. As this would involve manipulation of the evaluation behaviour of javascript (breaking with the current ECMA-Script specification), the idea is to provide a domain specific language implemented in javascript, that is able to at least structurally (if not syntactically) reflect the synchronous programs. A avaJScript program for the first synchronous exampe in this section would look as follows:
 
-	LET("partyPooper", as_userForName("Tadaeus")),
+	LET("partyPooper", as_userForName(VAL("Tadaeus"))),
 	LET("lastPost", as_getLastPost(GET("partyPooper"))),
 	IF(as_isBoring(GET("lastPost")),
 		as_delete(GET("partyPooper"))

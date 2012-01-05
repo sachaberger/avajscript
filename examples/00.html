@@ -9,9 +9,38 @@
 					GET("ARG")
 				));
 
+
 				var PLUS = FUN( "lhs", "rhs", RUN(function(scope){
 					return scope.get("lhs")+scope.get("rhs")
 				}));
+
+				var MINUS = FUN( "lhs", "rhs", RUN(function(scope){
+					return scope.get("lhs")-scope.get("rhs")
+				}));
+
+				var TIMES = FUN( "lhs", "rhs", RUN(function(scope){
+					return scope.get("lhs")*scope.get("rhs")
+				}));
+
+				var DIV = FUN( "lhs", "rhs", RUN(function(scope){
+					return scope.get("lhs")/scope.get("rhs")
+				}));
+
+
+				var IX = FUN( "arr", "ix", RUN(function(scope){
+					return scope.get("arr")[scope.get("ix")]
+				}));
+
+				var HEAD = FUN( "arr", IX(GET("arr"),0));
+
+				var TAIL = FUN( "arr", RUN(function(scope){
+					return scope.get("arr").slice(1)
+				}));
+				
+				var CONS = FUN( "head", "arr", RUN(function(scope){
+					return [scope.get("head")].concat(scope.get("arr"))
+				}));
+				
 
 				new SCRIPT(
 					LET("a",VAL(1)),
@@ -59,7 +88,8 @@
 							VAL(3),
 							VAL(4)
 						)
-					)
+					),
+					IF(VAL(false),VAL("ja"))
 				).then(function(w){
 					console.log("DONE",w);
 				}).execute();
