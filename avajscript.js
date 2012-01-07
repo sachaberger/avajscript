@@ -61,12 +61,16 @@ Copyright 2011 Sacha Berger
 		};
 	}
 
+	function Term(impl) {
+		this.calc = impl;
+	}
+
 	function VAL(primitiveValue) {
-		return function(scope,continuation) {
+		return new Term(function(scope,continuation) {
 			//TRACE("VAL",primitiveValue);
 			scope.setResult(primitiveValue);
-			continuation[0](scope,continuation.slice(1));
-		}
+			continuation[0].calc(scope,continuation.slice(1));
+		});
 	}
 
 	function FUN(/*varargs,closure*/){
@@ -89,17 +93,17 @@ Copyright 2011 Sacha Berger
 		var args = Array.apply(null,arguments);
 		var funName = args[0];
 		var params = args.slice(1);
-		return function(scope,continuation) {
+		return new Term(function(scope,continuation) {
 			if((typeof funName == "string"))
-				scope.get(funName).apply(null,params)(scope,continuation);
+				scope.get(funName).apply(null,params).calc(scope,continuation);
 			else {
-				funName(scope,[
-					function(_,fnCont) {
-						scope.get(scope.getResult()).apply(null,params)(scope,continuation)
-					}
+				funName.calc(scope,[
+					new Term(function(_,fnCont) {
+						scope.get(scope.getResult()).apply(null,params).calc(scope,continuation)
+					})
 				]);
 			}				
-		}
+		})
 	}
 
 	function MAP(array,closure) {
@@ -113,7 +117,7 @@ Copyright 2011 Sacha Berger
 				var cnt = res.length;
 				res.forEach(function(branchScope,i){
 					//TRACE("MAP:branchScope",branchScope,branchScope.getResult());
-					closure(branchScope,[function(w,_){
+					closure.calc(branchScope,[new Term(function(w,_){
 						res[i]=w;
 						cnt--;
 						if(cnt==0) {
@@ -122,7 +126,7 @@ Copyright 2011 Sacha Berger
 							}));
 							chain();									
 						}
-					}]);							
+					})]);							
 				});
 			})
 		)
@@ -131,12 +135,12 @@ Copyright 2011 Sacha Berger
 	function IFELSE(condition,Then,Else){
 		return _BLK([
 			condition,
-			function(scope,continuation){
+			new Term(function(scope,continuation){
 				var cndVal = scope.getResult();
 				//TRACE("IFELSE:conditionvalue",cndVal);
-				if(cndVal) Then(scope,continuation);
-				else Else(scope,continuation);
-			}
+				if(cndVal) Then.calc(scope,continuation);
+				else Else.calc(scope,continuation);
+			})
 		])
 	}
 
@@ -145,22 +149,22 @@ Copyright 2011 Sacha Berger
 		if(commands.length == 0) {
 			return RUN(function(_){});
 		} else {
-			return function(scope,continuation) {
+			return new Term(function(scope,continuation) {
 				// //TRACE("_BLK",scope,continuation);
 				var tailBlk = _BLK(commands.slice(1));
-				commands[0](scope,[tailBlk].concat(continuation));
-			}
+				commands[0].calc(scope,[tailBlk].concat(continuation));
+			})
 		}
 	}
 
 	function DO(/*varargs*/){
 		var args = Array.apply(null,arguments);
-		return function(scope,continuation) {
-			_BLK(args)(new Scope(scope),[function(innerScope,_) {
+		return new Term(function(scope,continuation) {
+			_BLK(args).calc(new Scope(scope),[new Term(function(innerScope,_) {
 				scope.setResult(innerScope.getResult());
-				continuation[0](scope,continuation.slice(1));
-			}]);
-		}
+				continuation[0].calc(scope,continuation.slice(1));
+			})]);
+		})
 	}
 
 	function GET(variable) {
@@ -194,12 +198,12 @@ Copyright 2011 Sacha Berger
 				rhs,
 				SYNC(function(scope,chain){
 					var value = scope.getResult();
-					lhs(new Scope(scope),[
-						function(lhsScope,continuation) {
+					lhs.calc(new Scope(scope),[
+						new Term(function(lhsScope,continuation) {
 							//TRACE("LET",lhs,"TO",value);
 							scope.set(lhsScope.getResult(),value);
 							chain();
-						}
+						})
 					]);
 				})
 			])
@@ -218,12 +222,12 @@ Copyright 2011 Sacha Berger
 	}
 
 	function SYNC(asyncProcedure) {
-		return function(scope,continuation) {
+		return new Term(function(scope,continuation) {
 			// //TRACE("SYNC",asyncProcedure);
 			asyncProcedure(scope,function(){
-				continuation[0](scope,continuation.slice(1));
+				continuation[0].calc(scope,continuation.slice(1));
 			});
-		}
+		})
 	}
 
 	function SCRIPT(/*varargs*/) {
@@ -236,7 +240,7 @@ Copyright 2011 Sacha Berger
 			return res;
 		}
 		this.execute = function() {
-			_BLK(this.script)(new Scope(),[this.callback]);	
+			_BLK(this.script).calc(new Scope(),[new Term(this.callback)]);
 		}
 	}
 
