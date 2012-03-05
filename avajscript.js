@@ -265,6 +265,9 @@ Copyright 2011 Sacha Berger
 				)
 			),
 			CALL: CALL,
+			IT: RUN(function(scope){
+				return scope.getResult();
+			}),
 			EQ: FUN("lhs","rhs",RUN(function(scope){
 				var lhs = scope.get("lhs"),
 				    rhs = scope.get("rhs");
