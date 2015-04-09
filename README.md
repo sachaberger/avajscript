@@ -6,20 +6,20 @@ This project claims to fight deep nesting of callbacks in ambitious javascript p
 
 Assuming you wonder where the headache with asynchronous stuff in javascript lies, let's consider the following piece of synchronous code:
 
-	var partyPooper = sync_userForName("Tadaeus");
-	var lastPost = sync_getLastPost(partyPooper);
+	var user = sync_userForName("Tadaeus");
+	var lastPost = sync_getLastPost(user);
 	if(sync_isBoring(lastPost)) {
-		sync_delete(partyPooper);
+		sync_delete(user);
 	}
 	alert("Done.");
 
 If we try to write something simiar assuming that all calls to the backend have to be asynchronous, we come up with something like this:
 
-	async_userForName("Tadaeus", function(partyPooper){
-		async_getLastPost(partyPooper, function(lastPost){
+	async_userForName("Tadaeus", function(user){
+		async_getLastPost(user, function(lastPost){
 			async_isBoring(lastPost, function(isBoring) {
 				if(isBoring)
-					async_delete(partyPooper, function(){
+					async_delete(user, function(){
 						alert("Done.");
 					});
 				else {
@@ -58,12 +58,12 @@ The asynchronous flavour of recLoop would look like this:
 		})
 	}
 
-So, after this little excursion in anonymous callback kung-fu, how will avaJScript helt you? The goal is, to more or less write code the way you would write it synchronously. As this would involve manipulation of the evaluation behaviour of javascript (breaking with the current ECMA-Script specification), the idea is to provide a domain specific language implemented in javascript, that is able to at least structurally (if not syntactically) reflect the synchronous programs. A avaJScript program for the first synchronous exampe in this section would look as follows:
+So, after this little excursion in anonymous callback kung-fu, how will avaJScript help you? The goal is, to more or less write code the way you would write it synchronously. As this would involve manipulation of the evaluation behaviour of javascript (breaking with the current ECMA-Script specification), the idea is to provide a domain specific language implemented in javascript, that is able to at least structurally (if not syntactically) reflect the synchronous programs. A avaJScript program for the first synchronous exampe in this section would look as follows:
 
-	LET("partyPooper", as_userForName(VAL("Tadaeus"))),
-	LET("lastPost", as_getLastPost(GET("partyPooper"))),
+	LET("user", as_userForName(VAL("Tadaeus"))),
+	LET("lastPost", as_getLastPost(GET("user"))),
 	IF(as_isBoring(GET("lastPost")),
-		as_delete(GET("partyPooper"))
+		as_delete(GET("user"))
 	),
 	RUN(function(){ 
 		alert("Done."); 
