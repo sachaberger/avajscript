@@ -1,4 +1,4 @@
-*** Completely useless now. Archived now. Deleted sool ***
+* Completely useless now. Archived now. Deleted sool *
 
 
 #avaJScript―think sync, run asyc
